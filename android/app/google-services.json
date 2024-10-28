@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "227358107035",
+    "project_id": "baazarlyfirebase",
+    "storage_bucket": "baazarlyfirebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227358107035:android:0de78fda326eb7574d2d3e",
+        "android_client_info": {
+          "package_name": "com.example.mobileapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBsy4c8gnthU84LU15uuiRXqg_P9A4uP8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
