@@ -6,6 +6,7 @@ class Product {
   final String description;
   final double price;
   final int stock;
+  final List<String> images;
 
   Product({
     required this.id,
@@ -13,6 +14,7 @@ class Product {
     required this.description,
     required this.price,
     required this.stock,
+    required this.images,
   });
 
   // Convert a Product into a Map for Firestore
@@ -23,6 +25,7 @@ class Product {
       'description': description,
       'price': price,
       'stock': stock,
+      'images': images,
     };
   }
 
@@ -35,6 +38,7 @@ class Product {
       description: data?['description'] ?? '',
       price: (data?['price'] ?? 0).toDouble(),
       stock: data?['stock'] ?? 0,
+      images: List<String>.from(data?['images'] ?? []),
     );
   }
 }

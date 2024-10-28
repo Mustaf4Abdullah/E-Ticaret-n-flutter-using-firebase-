@@ -4,20 +4,25 @@ import 'package:mobileapp/models/product.dart';
 class ProductService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Ürün ekle
+  // Add product
   Future<void> addProduct(Product product) {
     return _db.collection('products').doc(product.id).set(product.toMap());
   }
 
-  // Ürün güncelle
+  // Update product
   Future<void> updateProduct(Product product) {
     return _db.collection('products').doc(product.id).update(product.toMap());
   }
 
-  // Ürünleri listele
+  // Get products
   Stream<List<Product>> getProducts() {
     return _db.collection('products').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
     });
+  }
+
+  // Delete product
+  Future<void> deleteProduct(String productId) {
+    return _db.collection('products').doc(productId).delete();
   }
 }

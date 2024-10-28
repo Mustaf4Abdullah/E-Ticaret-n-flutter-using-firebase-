@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobileapp/auth.dart';
-import 'package:mobileapp/pages/login_register_page.dart';
 import 'package:mobileapp/models/product.dart';
+import 'package:mobileapp/pages/MyAccount.dart';
 import 'package:mobileapp/productPage.dart';
 import 'package:mobileapp/services/productServics.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeCustomerScreen extends StatefulWidget {
+  const HomeCustomerScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeCustomerScreen> createState() => _HomeCustomerScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeCustomerScreenState extends State<HomeCustomerScreen> {
   final ProductService productService = ProductService();
   List<Product> products = [];
   String? errorMessage;
@@ -45,11 +45,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildProductCard(Product product) {
     return Card(
       margin: EdgeInsets.all(10),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15.0),
+              child: Image.asset(
+                product.images.isNotEmpty
+                    ? product.images[0]
+                    : 'assets/default-image.jpg',
+                fit: BoxFit.cover,
+                height: 150.0, // Increased height
+                width: double.infinity,
+              ),
+            ),
+            SizedBox(height: 10),
             Text(
               product.name,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -59,6 +74,23 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 10),
             Text('Price: \$${product.price.toStringAsFixed(2)}'),
             Text('Stock: ${product.stock}'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.favorite_border),
+                  onPressed: () {
+                    // Add to favorites
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.shopping_cart),
+                  onPressed: () {
+                    // Add to cart
+                  },
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -70,6 +102,21 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bazaarly'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _signOut,
+          ),
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyAccount()),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -112,21 +159,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                      );
+                      // Navigate to Cart
                     },
                     child: Text('Cart'),
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                      );
+                      // Navigate to Favorites
                     },
                     child: Text('Favorites'),
                   ),
@@ -142,7 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: 'Search products...',
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
                       ),
                     ),
                   ),
@@ -156,18 +197,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             // Account Button
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
-                },
-                child: Text('Login'),
-              ),
-            ),
             // Carousel for featured products
             CarouselSlider(
               options: CarouselOptions(
@@ -223,67 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           // Navigate to product details
                         },
-                        child: Card(
-                          elevation: 4.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10.0),
-                                  topRight: Radius.circular(10.0),
-                                ),
-                                child: product.images.isNotEmpty
-                                    ? Image.asset(
-                                        product.images[0],
-                                        fit: BoxFit.cover,
-                                        height: 120.0,
-                                        width: double.infinity,
-                                      )
-                                    : Image.asset(
-                                        'assets/default-image.jpg',
-                                        fit: BoxFit.cover,
-                                        height: 120.0,
-                                        width: double.infinity,
-                                      ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  product.name,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  product.description,
-                                  style: const TextStyle(fontSize: 14),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Price: \$${product.price}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        child: _buildProductCard(product),
                       );
                     },
                   ),
