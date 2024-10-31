@@ -5,6 +5,8 @@ class BazaarlyUser {
   final String email;
   final String role;
 
+  // Static variable to hold the current user's ID
+
   BazaarlyUser({
     required this.id,
     required this.email,

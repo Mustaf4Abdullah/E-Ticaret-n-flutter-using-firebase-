@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobileapp/pages/MyAccount.dart';
 import 'package:mobileapp/productPage.dart';
+import 'package:mobileapp/auth.dart';
 
 class HomeManagerScreen extends StatefulWidget {
   const HomeManagerScreen({super.key});
@@ -9,11 +11,30 @@ class HomeManagerScreen extends StatefulWidget {
 }
 
 class _HomeManagerScreenState extends State<HomeManagerScreen> {
+  Future<void> _signOut() async {
+    await Auth().signOut();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manager Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _signOut,
+          ),
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyAccount()),
+              );
+            },
+          ),
+        ],
       ),
       body: Container(
         height: MediaQuery.of(context).size.height,

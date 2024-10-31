@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobileapp/auth.dart';
+import 'package:mobileapp/models/User.dart';
 import 'package:mobileapp/pages/Home_Manager_Screen.dart';
 import 'package:mobileapp/pages/home_customer_screen.dart';
 import 'package:mobileapp/pages/home_screen.dart';

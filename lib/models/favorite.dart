@@ -1,32 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Favorite {
-  final String id;
+class FavoriteItem {
+  final String id; // This could still be the Firestore document ID
   final String productId;
-  final String userId;
+  final String name;
+  final double price;
+  String userId = '';
 
-  Favorite({
+  FavoriteItem({
     required this.id,
     required this.productId,
-    required this.userId,
+    required this.name,
+    required this.price,
+    this.userId = '',
   });
 
-  // Convert a Favorite into a Map for Firestore
+  factory FavoriteItem.fromFirestore(Map<String, dynamic> data) {
+    return FavoriteItem(
+      id: data['id'],
+      productId: data['productId'],
+      name: data['name'],
+      price: data['price'],
+      userId: data['userId'], // Add userId to the factory constructor
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'productId': productId,
-      'userId': userId,
+      'name': name,
+      'price': price,
+      'userId': userId, // Add userId to the toMap method
     };
-  }
-
-  // Create a Favorite object from a Firestore document snapshot
-  factory Favorite.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>?; // Handle null safety
-    return Favorite(
-      id: data?['id'] ?? '',
-      productId: data?['productId'] ?? '',
-      userId: data?['userId'] ?? '',
-    );
   }
 }

@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CartItem {
-  final String id;
+  final String id; // This could still be the Firestore document ID
   final String productId;
   final String name;
   final double price;
   int quantity;
+  String userId = '';
 
   CartItem({
     required this.id,
@@ -13,6 +14,8 @@ class CartItem {
     required this.name,
     required this.price,
     required this.quantity,
+    this.userId = '',
+    // Include userId in the constructor
   });
 
   double get totalPrice => price * quantity;
@@ -24,6 +27,7 @@ class CartItem {
       name: data['name'],
       price: data['price'],
       quantity: data['quantity'],
+      userId: data['userId'], // Add userId to the factory constructor
     );
   }
 
@@ -34,6 +38,7 @@ class CartItem {
       'name': name,
       'price': price,
       'quantity': quantity,
+      'userId': userId, // Add userId to the toMap method
     };
   }
 }

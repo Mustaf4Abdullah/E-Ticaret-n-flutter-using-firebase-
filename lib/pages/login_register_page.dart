@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mobileapp/models/User.dart';
 import 'package:mobileapp/pages/Home_Manager_Screen.dart';
 import '../auth.dart';
 import 'home_customer_screen.dart';
@@ -32,6 +33,8 @@ class _LoginPageState extends State<LoginPage> {
         // Fetch user role from Firestore
         final DocumentSnapshot docSnapshot =
             await _firestore.collection('users').doc(user.uid).get();
+
+        //currentUserId = user.uid; // Add this line to store the user ID
 
         if (docSnapshot.exists) {
           final String userRole = docSnapshot['role'] ?? 'customer';

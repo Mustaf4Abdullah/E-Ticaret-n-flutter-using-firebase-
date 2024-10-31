@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobileapp/auth.dart';
+import 'package:mobileapp/models/CartItem.dart';
+import 'package:mobileapp/models/favorite.dart';
 import 'package:mobileapp/models/product.dart';
 import 'package:mobileapp/pages/MyAccount.dart';
-import 'package:mobileapp/productPage.dart';
+import 'package:mobileapp/services/cartService.dart';
+import 'package:mobileapp/services/favoriteService.dart';
 import 'package:mobileapp/services/productServics.dart';
+import 'package:mobileapp/pages/cart_screen.dart';
+import 'package:mobileapp/pages/favorites_screen.dart';
 
 class HomeCustomerScreen extends StatefulWidget {
   const HomeCustomerScreen({super.key});
@@ -44,7 +49,7 @@ class _HomeCustomerScreenState extends State<HomeCustomerScreen> {
 
   Widget _buildProductCard(Product product) {
     return Card(
-      margin: EdgeInsets.all(10),
+      margin: const EdgeInsets.all(10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
@@ -64,29 +69,42 @@ class _HomeCustomerScreenState extends State<HomeCustomerScreen> {
                 width: double.infinity,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               product.name,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(product.description),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text('Price: \$${product.price.toStringAsFixed(2)}'),
             Text('Stock: ${product.stock}'),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  icon: Icon(Icons.favorite_border),
+                  icon: const Icon(Icons.favorite_border),
                   onPressed: () {
                     // Add to favorites
+                    FavoriteService().addFavorite(FavoriteItem(
+                      id: product.id,
+                      productId: product.id,
+                      name: product.name,
+                      price: product.price,
+                    ));
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.shopping_cart),
+                  icon: const Icon(Icons.shopping_cart),
                   onPressed: () {
                     // Add to cart
+                    CartService().addCartItem(CartItem(
+                      id: product.id,
+                      productId: product.id,
+                      name: product.name,
+                      price: product.price,
+                      quantity: 1,
+                    ));
                   },
                 ),
               ],
@@ -159,13 +177,20 @@ class _HomeCustomerScreenState extends State<HomeCustomerScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      // Navigate to Cart
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CartScreen()),
+                      );
                     },
                     child: Text('Cart'),
                   ),
                   TextButton(
                     onPressed: () {
-                      // Navigate to Favorites
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FavoritesScreen()),
+                      );
                     },
                     child: Text('Favorites'),
                   ),
