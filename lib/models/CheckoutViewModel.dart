@@ -18,7 +18,7 @@ class CheckoutViewModel {
           .map((item) => CartItem.fromFirestore(item))
           .toList(),
       addresses: (data['addresses'] as List)
-          .map((item) => Addresses.fromFirestore(item))
+          .map((item) => Addresses.fromMap(item, ''))
           .toList(),
       selectedAddressId: data['selectedAddressId'],
     );

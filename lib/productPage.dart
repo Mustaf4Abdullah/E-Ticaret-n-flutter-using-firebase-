@@ -17,6 +17,14 @@ class _ProductPageState extends State<ProductPage> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _stockController = TextEditingController();
   final TextEditingController _imagesController = TextEditingController();
+  String? _selectedCategory; // To hold the selected category
+
+  final List<String> categories = [
+    'House Equipment',
+    'Electronics',
+    'Clothes',
+    'Accessories'
+  ]; // Predefined categories
 
   @override
   void initState() {
@@ -31,17 +39,30 @@ class _ProductPageState extends State<ProductPage> {
 
   void _addProduct() {
     final newProduct = Product(
-      id: DateTime.now().toString(), // Unique ID
+      id: DateTime.now().toString(),
       name: _nameController.text,
       description: _descriptionController.text,
       price: double.tryParse(_priceController.text) ?? 0.0,
       stock: int.tryParse(_stockController.text) ?? 0,
-      images:
-          _imagesController.text.split(',').map((e) => 'assets/$e').toList(),
+      images: _imagesController.text.split(',').map((e) => e.trim()).toList(),
+      category: _selectedCategory, // Add selected category
     );
 
     productService.addProduct(newProduct).then((_) {
       _clearForm();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Product added successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add product: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
     });
   }
 
@@ -51,6 +72,7 @@ class _ProductPageState extends State<ProductPage> {
     _priceController.text = product.price.toString();
     _stockController.text = product.stock.toString();
     _imagesController.text = product.images.join(',');
+    _selectedCategory = product.category; // Prepopulate selected category
 
     showDialog(
       context: context,
@@ -68,13 +90,20 @@ class _ProductPageState extends State<ProductPage> {
                 stock: int.tryParse(_stockController.text) ?? 0,
                 images: _imagesController.text
                     .split(',')
-                    .map((e) => 'assets/$e')
+                    .map((e) => e.trim())
                     .toList(),
+                category: _selectedCategory, // Update category
               );
 
               productService.updateProduct(updatedProduct).then((_) {
                 _clearForm();
                 Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Product updated successfully!'),
+                    backgroundColor: Colors.blueAccent,
+                  ),
+                );
               });
             },
             child: Text('Save'),
@@ -92,7 +121,35 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void _deleteProduct(String productId) {
-    productService.deleteProduct(productId);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Delete'),
+        content: Text('Are you sure you want to delete this product?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              productService.deleteProduct(productId).then((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Product deleted successfully!'),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+              });
+              Navigator.of(context).pop();
+            },
+            child: Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _clearForm() {
@@ -101,6 +158,7 @@ class _ProductPageState extends State<ProductPage> {
     _priceController.clear();
     _stockController.clear();
     _imagesController.clear();
+    _selectedCategory = null; // Reset category
   }
 
   Widget _buildForm() {
@@ -117,16 +175,32 @@ class _ProductPageState extends State<ProductPage> {
         ),
         TextField(
           controller: _priceController,
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(labelText: 'Price'),
         ),
         TextField(
           controller: _stockController,
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(labelText: 'Stock'),
         ),
         TextField(
           controller: _imagesController,
-          decoration:
-              InputDecoration(labelText: 'Images (comma separated filenames)'),
+          decoration: InputDecoration(labelText: 'Image URL (comma-separated)'),
+        ),
+        DropdownButtonFormField<String>(
+          value: _selectedCategory,
+          decoration: InputDecoration(labelText: 'Category'),
+          items: categories
+              .map((category) => DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedCategory = value;
+            });
+          },
         ),
       ],
     );
@@ -135,19 +209,37 @@ class _ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Products')),
+      appBar: AppBar(
+        title: Text('Products'),
+        backgroundColor: Colors.blueAccent,
+      ),
+      backgroundColor: Colors.grey[200],
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                _buildForm(),
-                ElevatedButton(
-                  onPressed: _addProduct,
-                  child: Text('Add Product'),
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    _buildForm(),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: _addProduct,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.greenAccent,
+                        foregroundColor: Colors.black,
+                      ),
+                      child: Text('Add Product'),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           Expanded(
@@ -155,22 +247,38 @@ class _ProductPageState extends State<ProductPage> {
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
-                return ListTile(
-                  title: Text(product.name),
-                  subtitle: Text(
-                      'Price: \$${product.price}, Stock: ${product.stock}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () => _editProduct(product),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () => _deleteProduct(product.id),
-                      ),
-                    ],
+                return Card(
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  elevation: 2,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: product.images.isNotEmpty
+                          ? NetworkImage(
+                              product.images[0]) // Display the first image URL
+                          : null,
+                      backgroundColor: Colors.blueAccent,
+                      child:
+                          product.images.isEmpty ? Text(product.name[0]) : null,
+                    ),
+                    title: Text(
+                      product.name,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                        'Category: ${product.category ?? 'Uncategorized'}\nPrice: \$${product.price}, Stock: ${product.stock}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.blueAccent),
+                          onPressed: () => _editProduct(product),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.redAccent),
+                          onPressed: () => _deleteProduct(product.id),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

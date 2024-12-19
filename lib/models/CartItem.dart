@@ -5,8 +5,11 @@ class CartItem {
   final String productId;
   final String name;
   final double price;
+  final String description;
   int quantity;
+  int stock;
   String userId = '';
+  final List<String> images;
 
   CartItem({
     required this.id,
@@ -15,6 +18,9 @@ class CartItem {
     required this.price,
     required this.quantity,
     this.userId = '',
+    required this.stock,
+    required this.images,
+    required this.description,
     // Include userId in the constructor
   });
 
@@ -25,9 +31,13 @@ class CartItem {
       id: data['id'],
       productId: data['productId'],
       name: data['name'],
+      description: data?['description'] ?? '',
+      stock: data?['stock'] ?? 0,
       price: data['price'],
       quantity: data['quantity'],
-      userId: data['userId'], // Add userId to the factory constructor
+      userId: data['userId'],
+      images: List<String>.from(data?['images'] ?? []),
+      // Add userId to the factory constructor
     );
   }
 
@@ -36,9 +46,13 @@ class CartItem {
       'id': id,
       'productId': productId,
       'name': name,
+      'description': description,
       'price': price,
+      'stock': stock,
       'quantity': quantity,
-      'userId': userId, // Add userId to the toMap method
+      'userId': userId,
+      'images': images,
+      // Add userId to the toMap method
     };
   }
 }

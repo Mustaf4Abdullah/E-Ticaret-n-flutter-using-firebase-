@@ -17,9 +17,12 @@ class _HomeManagerScreenState extends State<HomeManagerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const primaryColor = Color.fromARGB(255, 58, 183, 141);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manager Dashboard'),
+        backgroundColor: primaryColor,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -49,28 +52,18 @@ class _HomeManagerScreenState extends State<HomeManagerScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Center(
-                      child: Column(
-                        children: [
-                          // Image(
-                          //   image: AssetImage('assets/login-logo.jpg'),
-                          //   width: 200,
-                          // ),
-                          SizedBox(height: 20),
-                          Text(
-                            'Manager Dashboard',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Manage your tasks here',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
+                    const Text(
+                      'Manager Dashboard',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 28,
                       ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Manage your tasks efficiently.',
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 30),
                     ElevatedButton(
@@ -82,54 +75,17 @@ class _HomeManagerScreenState extends State<HomeManagerScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC8A71F),
+                        backgroundColor: primaryColor,
                         minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
-                      child: const Text('Manage Products'),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC8A71F),
-                        minimumSize: const Size(double.infinity, 50),
+                      child: const Text(
+                        'Manage Products',
+                        style: TextStyle(fontSize: 18),
                       ),
-                      child: const Text('View Employees'),
                     ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Navigate to Messages and Reports
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC8A71F),
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: const Text('Messages and Reports'),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Navigate to View Users
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC8A71F),
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: const Text('View Users'),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Navigate to View Orders
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC8A71F),
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: const Text('View Orders'),
-                    ),
-                    const SizedBox(height: 10),
                   ],
                 ),
               ),
@@ -138,7 +94,7 @@ class _HomeManagerScreenState extends State<HomeManagerScreen> {
             Expanded(
               flex: 1,
               child: Container(
-                color: const Color(0xFFC8A71F),
+                color: primaryColor,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -148,13 +104,15 @@ class _HomeManagerScreenState extends State<HomeManagerScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 20),
                       Text(
-                        'Explore your dashboard and manage the marketplace effectively.',
+                        'Explore your dashboard to oversee and manage marketplace activities.',
                         style: TextStyle(
                           color: Colors.white,
+                          fontSize: 16,
                         ),
                         textAlign: TextAlign.center,
                       ),

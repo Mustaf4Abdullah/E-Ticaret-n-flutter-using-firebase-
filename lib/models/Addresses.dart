@@ -33,18 +33,16 @@ class Addresses {
     };
   }
 
-  // Create an Address object from a Firestore document snapshot
-  factory Addresses.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>?; // Handle null safety
+  // Create an Address object from a Map
+  factory Addresses.fromMap(Map<String, dynamic> map, String id) {
     return Addresses(
-      id: doc.id,
-      userId:
-          data?['userId'] ?? '', // Provide default values if fields are missing
-      street: data?['street'] ?? '',
-      city: data?['city'] ?? '',
-      state: data?['state'] ?? '',
-      zipCode: data?['zipCode'] ?? '',
-      country: data?['country'] ?? '',
+      id: id,
+      userId: map['userId'] ?? '',
+      street: map['street'] ?? '',
+      city: map['city'] ?? '',
+      state: map['state'] ?? '',
+      zipCode: map['zipCode'] ?? '',
+      country: map['country'] ?? '',
     );
   }
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobileapp/models/CartItem.dart';
+import 'package:mobileapp/models/product.dart';
+import 'package:mobileapp/pages/OrderProcessView.dart';
+import 'package:mobileapp/pages/ProductView.dart';
 import 'package:mobileapp/services/cartService.dart';
 
 class CartScreen extends StatefulWidget {
@@ -10,16 +13,14 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   final CartService cartService = CartService();
   List<CartItem> cartItems = [];
-
   late Stream<List<CartItem>> cartItemsStream;
 
   @override
   void initState() {
     super.initState();
-    cartItemsStream = cartService.getCartItems(); // Initialize the stream
+    cartItemsStream = cartService.getCartItems();
     cartItemsStream.listen((items) {
       if (mounted) {
-        // Check if the widget is still mounted
         setState(() {
           cartItems = items;
         });
@@ -29,46 +30,153 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   void dispose() {
-    // Perform any necessary cleanup
-    // Currently, there are no specific streams to cancel in CartService, but you could add a cleanup function there if needed.
     super.dispose();
   }
 
   void _removeFromCart(String id) {
     cartService.removeCartItem(id);
-    // Optionally, you could also remove the item from cartItems immediately if needed
-    // setState(() {
-    //   cartItems.removeWhere((item) => item.id == id);
-    // });
+    _showSnackBar('Item removed from cart');
+  }
+
+  void _reduceQuantity(CartItem item) {
+    if (item.quantity > 1) {
+      cartService.updateCartItemQuantity(item.id, item.quantity - 1);
+      _showSnackBar('Quantity reduced');
+    } else {
+      _removeFromCart(item.id); // If quantity is 1, remove the item
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      duration: const Duration(seconds: 2),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Cart')),
+      appBar: AppBar(
+        title: const Text('Your Cart'),
+        backgroundColor: const Color.fromARGB(255, 58, 183, 141),
+      ),
       body: cartItems.isEmpty
-          ? Center(child: Text('Your cart is empty'))
+          ? const Center(
+              child: Text(
+                'Your cart is empty',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            )
           : ListView.builder(
               itemCount: cartItems.length,
               itemBuilder: (context, index) {
                 final item = cartItems[index];
-                return ListTile(
-                  title: Text(item.name),
-                  subtitle: Text(
-                      'Price: \$${item.price}, Quantity: ${item.quantity}'),
-                  trailing: IconButton(
-                    icon: Icon(Icons.remove_shopping_cart),
-                    onPressed: () => _removeFromCart(item.id),
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 12.0, vertical: 8.0),
+                  child: ListTile(
+                    leading: Image.network(
+                      item.images.isNotEmpty &&
+                              Uri.tryParse(item.images[0])?.isAbsolute == true
+                          ? item.images[0]
+                          : 'https://via.placeholder.com/150', // Fallback image
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
+                    title: GestureDetector(
+                      onTap: () {
+                        // Navigate to ProductView page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductView(
+                                product: Product(
+                                    id: item.id,
+                                    name: item.name,
+                                    description: item.description,
+                                    price: item.price,
+                                    stock: item.stock,
+                                    images: item.images)),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        item.name,
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue),
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Price: \$${item.price.toStringAsFixed(2)}\nQuantity: ${item.quantity}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.add_circle_outline),
+                          color: const Color.fromARGB(255, 58, 183, 141),
+                          onPressed: () {
+                            cartService.updateCartItemQuantity(
+                                item.id, item.quantity + 1);
+                            _showSnackBar('Quantity increased');
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline),
+                          color: Colors.red,
+                          onPressed: () => _reduceQuantity(item),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_forever),
+                          color: const Color.fromARGB(255, 58, 183, 141),
+                          onPressed: () => _removeFromCart(item.id),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
             ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          'Total: \$${cartItems.fold<double>(0.0, (total, item) => total + item.totalPrice)}',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 4,
+                  color: Colors.black26,
+                  offset: Offset(0, -1),
+                )
+              ],
+            ),
+            child: Text(
+              'Total: \$${cartItems.fold<double>(0.0, (total, item) => total + item.totalPrice).toStringAsFixed(2)}',
+              style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OrderProcessView(cartItems: cartItems),
+                ),
+              );
+            },
+            child: const Text('Complete Shopping'),
+          ),
+        ],
       ),
     );
   }

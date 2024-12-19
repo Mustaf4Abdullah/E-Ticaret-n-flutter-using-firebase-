@@ -34,12 +34,12 @@ class UserAccountViewModel {
       email: data?['email'] ?? '',
       orderHistory: (data?['orderHistory'] as List<dynamic>?)
               ?.map((order) =>
-                  local_order.Order.fromFirestore(order as DocumentSnapshot))
+                  local_order.Order.fromMap(order as Map<String, dynamic>))
               .toList() ??
           [],
       savedAddresses: (data?['savedAddresses'] as List<dynamic>?)
               ?.map((address) =>
-                  Addresses.fromFirestore(address as DocumentSnapshot))
+                  Addresses.fromMap(address as Map<String, dynamic>, ''))
               .toList() ??
           [],
     );

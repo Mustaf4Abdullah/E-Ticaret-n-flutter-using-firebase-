@@ -1,5 +1,4 @@
 import 'OrderItem.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Order {
   final String orderId;
@@ -27,15 +26,14 @@ class Order {
     };
   }
 
-  // Create an Order object from a Firestore document snapshot
-  factory Order.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>?; // Handle null safety
+  // Create an Order object from a Map (useful for local use and Firestore)
+  factory Order.fromMap(Map<String, dynamic> map) {
     return Order(
-      orderId: data?['orderId'] ?? '',
-      userId: data?['userId'] ?? '',
-      orderDate: DateTime.parse(
-          data?['orderDate'] ?? DateTime.now().toIso8601String()),
-      items: (data?['items'] as List<dynamic>?)
+      orderId: map['orderId'] ?? '',
+      userId: map['userId'] ?? '',
+      orderDate:
+          DateTime.parse(map['orderDate'] ?? DateTime.now().toIso8601String()),
+      items: (map['items'] as List<dynamic>?)
               ?.map((item) => OrderItem.fromMap(item as Map<String, dynamic>))
               .toList() ??
           [],

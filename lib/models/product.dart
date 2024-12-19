@@ -7,6 +7,7 @@ class Product {
   final double price;
   final int stock;
   final List<String> images;
+  final String? category; // Add category field which can be null
 
   Product({
     required this.id,
@@ -15,6 +16,7 @@ class Product {
     required this.price,
     required this.stock,
     required this.images,
+    this.category, // Initialize category
   });
 
   // Convert a Product into a Map for Firestore
@@ -26,6 +28,7 @@ class Product {
       'price': price,
       'stock': stock,
       'images': images,
+      'category': category, // Add category to map
     };
   }
 
@@ -39,6 +42,7 @@ class Product {
       price: (data?['price'] ?? 0).toDouble(),
       stock: data?['stock'] ?? 0,
       images: List<String>.from(data?['images'] ?? []),
+      category: data?['category'], // Handle category which can be null
     );
   }
 }

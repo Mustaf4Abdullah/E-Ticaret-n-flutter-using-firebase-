@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mobileapp/models/User.dart';
+import 'package:mobileapp/auth.dart';
 import 'package:mobileapp/pages/Home_Manager_Screen.dart';
-import '../auth.dart';
-import 'home_customer_screen.dart';
+import 'package:mobileapp/pages/home_customer_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -19,6 +18,8 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> signInWithEmailAndPassword() async {
@@ -30,29 +31,20 @@ class _LoginPageState extends State<LoginPage> {
 
       final User? user = Auth().currentUser;
       if (user != null) {
-        // Fetch user role from Firestore
         final DocumentSnapshot docSnapshot =
             await _firestore.collection('users').doc(user.uid).get();
-
-        //currentUserId = user.uid; // Add this line to store the user ID
 
         if (docSnapshot.exists) {
           final String userRole = docSnapshot['role'] ?? 'customer';
 
-          // Navigate based on the user role
-          if (userRole == 'manager') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const HomeManagerScreen()),
-            );
-          } else {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const HomeCustomerScreen()),
-            );
-          }
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => userRole == 'manager'
+                  ? const HomeManagerScreen()
+                  : const HomeCustomerScreen(),
+            ),
+          );
         } else {
           setState(() {
             errorMessage = 'User role not found';
@@ -67,6 +59,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> createUserWithEmailAndPassword() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      setState(() {
+        errorMessage = 'Passwords do not match.';
+      });
+      return;
+    }
+
     try {
       await Auth().createUserWithEmailAndPassword(
         _emailController.text,
@@ -75,7 +74,6 @@ class _LoginPageState extends State<LoginPage> {
 
       final User? user = Auth().currentUser;
       if (user != null) {
-        // Assign the default 'customer' role for new users
         await _firestore.collection('users').doc(user.uid).set({
           'id': user.uid,
           'email': user.email,
@@ -86,9 +84,10 @@ class _LoginPageState extends State<LoginPage> {
           errorMessage = 'Registration successful!';
         });
 
+        // Redirect to login page
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeCustomerScreen()),
+          MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -102,31 +101,42 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Widget Title() {
-    return Text(
+  Widget _title() {
+    return const Text(
       'Login or Register',
-      style: TextStyle(fontSize: 24),
+      style: TextStyle(
+          fontSize: 28, fontWeight: FontWeight.bold, color: Colors.teal),
     );
   }
 
-  Widget _entryField(String title, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: title,
+  Widget _entryField(String title, TextEditingController controller,
+      {bool obscureText = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: title,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          filled: true,
+          fillColor: Colors.grey[200],
+        ),
       ),
     );
   }
 
   Widget _errorMessage() {
     return Text(
-      errorMessage == '' ? '' : errorMessage!,
+      errorMessage ?? '',
       style: TextStyle(
-        color: errorMessage == 'Login successful!' ||
-                errorMessage == 'Registration successful!'
+        color: errorMessage == 'Registration successful!'
             ? Colors.green
             : Colors.red,
       ),
@@ -134,10 +144,22 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _submitButton() {
-    return ElevatedButton(
-      onPressed:
-          isLogin ? signInWithEmailAndPassword : createUserWithEmailAndPassword,
-      child: Text(isLogin ? 'Login' : 'Register'),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: ElevatedButton(
+        onPressed: isLogin
+            ? signInWithEmailAndPassword
+            : createUserWithEmailAndPassword,
+        child: Text(
+          isLogin ? 'Login' : 'Register',
+          style: const TextStyle(color: Colors.black),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.teal[300], // Reduced brightness
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          textStyle: const TextStyle(fontSize: 18),
+        ),
+      ),
     );
   }
 
@@ -149,7 +171,12 @@ class _LoginPageState extends State<LoginPage> {
           errorMessage = '';
         });
       },
-      child: Text(isLogin ? 'Register' : 'Login'),
+      child: Text(
+        isLogin
+            ? 'Don\'t have an account? Register here'
+            : 'Already have an account? Login here',
+        style: const TextStyle(color: Colors.teal),
+      ),
     );
   }
 
@@ -157,21 +184,25 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Title(),
+        title: _title(),
+        backgroundColor: Colors.teal,
       ),
       body: Container(
-        height: double.infinity,
-        width: double.infinity,
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _entryField('Email', _emailController),
-            _entryField('Password', _passwordController),
-            _errorMessage(),
-            _submitButton(),
-            _loginOrRegisterButton(),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _entryField('Email', _emailController),
+              _entryField('Password', _passwordController, obscureText: true),
+              if (!isLogin)
+                _entryField('Confirm Password', _confirmPasswordController,
+                    obscureText: true),
+              _errorMessage(),
+              _submitButton(),
+              _loginOrRegisterButton(),
+            ],
+          ),
         ),
       ),
     );

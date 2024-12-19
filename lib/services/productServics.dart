@@ -25,4 +25,26 @@ class ProductService {
   Future<void> deleteProduct(String productId) {
     return _db.collection('products').doc(productId).delete();
   }
+
+  // Search for products by name
+  Stream<List<Product>> searchProducts(String query) {
+    return _db
+        .collection('products')
+        .where('name', isGreaterThanOrEqualTo: query)
+        .where('name',
+            isLessThanOrEqualTo: query + '\uf8ff') // Handles prefix match
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
+    });
+  }
+
+  Stream<List<Product>> getProductsByCategory(String category) {
+    return FirebaseFirestore.instance
+        .collection('products')
+        .where('category', isEqualTo: category)
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList());
+  }
 }

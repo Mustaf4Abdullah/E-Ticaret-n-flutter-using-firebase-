@@ -10,6 +10,7 @@ class CartService {
     return await Auth().getCurrentUserId();
   }
 
+  // Stream to get all cart items
   Stream<List<CartItem>> getCartItems() async* {
     final userId = await _getUserId();
     yield* cartCollection.where('userId', isEqualTo: userId).snapshots().map(
@@ -19,6 +20,7 @@ class CartService {
             .toList());
   }
 
+  // Add a new item or update its quantity
   Future<void> addCartItem(CartItem item) async {
     final userId = await _getUserId();
     item.userId = userId;
@@ -38,8 +40,21 @@ class CartService {
     }
   }
 
+  // Remove a cart item
   Future<void> removeCartItem(String productId) async {
     final userId = await _getUserId();
     return cartCollection.doc('${userId}_${productId}').delete();
+  }
+
+  // New: Update quantity of a cart item
+  Future<void> updateCartItemQuantity(String productId, int newQuantity) async {
+    final userId = await _getUserId();
+    final docRef = cartCollection.doc('${userId}_$productId');
+
+    final doc = await docRef.get();
+    if (doc.exists) {
+      // Update the quantity field
+      await docRef.update({'quantity': newQuantity});
+    }
   }
 }
