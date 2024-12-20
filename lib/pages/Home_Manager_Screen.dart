@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobileapp/pages/MyAccount.dart';
+import 'package:mobileapp/pages/home_screen.dart';
 import 'package:mobileapp/productPage.dart';
 import 'package:mobileapp/auth.dart';
 
@@ -26,7 +27,13 @@ class _HomeManagerScreenState extends State<HomeManagerScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: _signOut,
+            onPressed: () {
+              _signOut();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.home),

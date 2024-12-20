@@ -167,12 +167,17 @@ class _CartScreenState extends State<CartScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => OrderProcessView(cartItems: cartItems),
-                ),
-              );
+              if (cartItems.isEmpty) {
+                _showSnackBar('Your cart is empty. Add items to proceed.');
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        OrderProcessView(cartItems: cartItems),
+                  ),
+                );
+              }
             },
             child: const Text('Complete Shopping'),
           ),

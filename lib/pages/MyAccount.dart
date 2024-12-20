@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mobileapp/auth.dart';
 import 'package:mobileapp/models/user_account_view_model.dart.dart';
 import 'package:mobileapp/pages/AddAddressPage.dart';
 import 'package:mobileapp/pages/ChangePassword.dart';
+import 'package:mobileapp/pages/home_screen.dart';
 import 'package:mobileapp/services/AddressService.dart';
 import 'package:mobileapp/services/OrderService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -55,14 +57,8 @@ class _MyAccountPageState extends State<MyAccount> {
     }
   }
 
-  Future<void> _logout() async {
-    try {
-      await FirebaseAuth.instance.signOut();
-      Navigator.of(context)
-          .pushReplacementNamed('home_screen'); // Redirect to HomeScreen
-    } catch (e) {
-      print("Logout failed: $e");
-    }
+  Future<void> _signOut() async {
+    await Auth().signOut();
   }
 
   Widget _buildOrderHistory() {
@@ -176,18 +172,22 @@ class _MyAccountPageState extends State<MyAccount> {
                             builder: (context) => AddAddressPage()),
                       );
                     },
-                    child: Text("Add Address"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
                     ),
+                    child: const Text("Add Address"),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: _logout,
-                    child: Text("Logout"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                    ),
+                    onPressed: () {
+                      _signOut();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomeScreen()),
+                      );
+                    },
+                    child: const Text("Sign Out"),
                   ),
                 ],
               ),

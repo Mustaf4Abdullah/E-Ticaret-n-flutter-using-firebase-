@@ -6,6 +6,7 @@ import 'package:mobileapp/models/favorite.dart';
 import 'package:mobileapp/models/product.dart';
 import 'package:mobileapp/pages/MyAccount.dart';
 import 'package:mobileapp/pages/ProductByCatagory.dart';
+import 'package:mobileapp/pages/home_screen.dart';
 import 'package:mobileapp/services/cartService.dart';
 import 'package:mobileapp/services/favoriteService.dart';
 import 'package:mobileapp/services/productServics.dart';
@@ -172,7 +173,13 @@ class _HomeCustomerScreenState extends State<HomeCustomerScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: _signOut,
+            onPressed: () {
+              _signOut();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.home, color: Colors.white),
