@@ -1,6 +1,8 @@
 # mobileapp
 
-A new Flutter project.
+A simple flutter project :Mobile app ecommerce with firebase connection to store the product information .
+
+To make it work adjust the android/app/google-services.json file based on your firebase connection and key . 
 
 ## Getting Started
 
